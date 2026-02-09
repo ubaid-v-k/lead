@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { Box, Typography, List, ListItem } from "@mui/material";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
@@ -9,17 +10,18 @@ import ConfirmationNumberOutlinedIcon from "@mui/icons-material/ConfirmationNumb
 
 import "../styles/sidebar.css";
 
-// Menu items
+// Menu items with ROUTES
 const menu = [
-  { label: "Dashboard", icon: DashboardOutlinedIcon },
-  { label: "Leads", icon: PeopleAltOutlinedIcon },
-  { label: "Companies", icon: BusinessCenterOutlinedIcon },
-  { label: "Deals", icon: AssignmentTurnedInOutlinedIcon },
-  { label: "Tickets", icon: ConfirmationNumberOutlinedIcon },
+  { label: "Dashboard", icon: DashboardOutlinedIcon, path: "/dashboard" },
+  { label: "Leads", icon: PeopleAltOutlinedIcon, path: "/leads" },
+  { label: "Companies", icon: BusinessCenterOutlinedIcon, path: "/companies" },
+  { label: "Deals", icon: AssignmentTurnedInOutlinedIcon, path: "/deals" },
+  { label: "Tickets", icon: ConfirmationNumberOutlinedIcon, path: "/tickets" },
 ];
 
 export default function Sidebar({ open, onClose }) {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <>
@@ -34,27 +36,16 @@ export default function Sidebar({ open, onClose }) {
       {/* Sidebar */}
       <Box
         className={`sidebar ${open ? "open" : ""}`}
-        sx={{
-          width: 85,
-          height: "100vh",
-          position: "fixed",
-          top: 0,
-          left: 0,
-          backgroundColor: "#FFFFFF",
-          borderRight: "1px solid #eef2f7",
-          pt: 3,
-          zIndex: 1000,
-        }}
       >
         <List>
           {menu.map((item, index) => {
             const Icon = item.icon;
-            const active = index === activeIndex;
+            const active = location.pathname === item.path;
 
             return (
               <ListItem
                 key={index}
-                onClick={() => setActiveIndex(index)}
+                onClick={() => navigate(item.path)}
                 sx={{
                   flexDirection: "column",
                   alignItems: "center",
@@ -83,6 +74,7 @@ export default function Sidebar({ open, onClose }) {
                     }}
                   />
                 </Box>
+
                 <Typography
                   sx={{
                     mt: 1.5,

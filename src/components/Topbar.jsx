@@ -1,21 +1,31 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/topbar.css";
+import NotificationPanel from "./NotificationPanel";
+import { getCurrentUser } from "../api/authService";
 
 export default function Topbar({ onMenuClick }) {
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
-  const menuRef = useRef(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [notificationOpen, setNotificationOpen] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  const profileRef = useRef(null);
+  const notificationRef = useRef(null);
 
-  const firstLetter = user?.name?.charAt(0).toUpperCase() || "U";
+  // const user = JSON.parse(localStorage.getItem("user")); // OLD
+  const user = getCurrentUser();
 
-  // close dropdown on outside click
+  const displayName = user?.name || `${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "User";
+  const firstLetter = displayName.charAt(0).toUpperCase();
+
+  // close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setOpen(false);
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setProfileOpen(false);
+      }
+      if (notificationRef.current && !notificationRef.current.contains(e.target)) {
+        setNotificationOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -43,34 +53,55 @@ export default function Topbar({ onMenuClick }) {
           <input placeholder="Search" />
         </div>
 
-        <button className="icon-btn">
-          <i className="bi bi-bell"></i>
-        </button>
+        {/* NOTIFICATIONS */}
+        <div className="notification-wrapper" ref={notificationRef} style={{ position: "relative" }}>
+          <button
+            className="icon-btn"
+            onClick={() => setNotificationOpen(!notificationOpen)}
+          >
+            <i className="bi bi-bell"></i>
+          </button>
+          {notificationOpen && (
+            <NotificationPanel onClose={() => setNotificationOpen(false)} />
+          )}
+        </div>
 
         {/* PROFILE */}
-        <div className="profile-wrapper" ref={menuRef}>
+        <div className="profile-wrapper" ref={profileRef}>
           <div
             className="profile-avatar"
-            onClick={() => setOpen(!open)}
+            onClick={() => setProfileOpen(!profileOpen)}
           >
             {firstLetter}
           </div>
 
-          {open && (
+          {profileOpen && (
             <div className="profile-dropdown">
               <div className="profile-info">
                 <div className="avatar-lg">{firstLetter}</div>
                 <div>
-                  <h6>{user?.name}</h6>
-                  <p>{user?.email}</p>
+                  <h6>{displayName}</h6>
+                  <p>{user?.email || "user@example.com"}</p>
                 </div>
               </div>
 
               <div className="profile-meta">
                 <p>
-                  <strong>Registered:</strong> {user?.registeredAt}
+                  <strong>Registered:</strong> {user?.registeredAt || "N/A"}
                 </p>
+                {user?.phone && (
+                  <p>
+                    <strong>Phone:</strong> {user.phone}
+                  </p>
+                )}
+                {user?.company && (
+                  <p>
+                    <strong>Company:</strong> {user.company}
+                  </p>
+                )}
               </div>
+
+              <div className="divider" style={{ margin: "8px 0", borderTop: "1px solid #eee" }}></div>
 
               <button className="logout-btn" onClick={handleLogout}>
                 <i className="bi bi-box-arrow-right"></i>

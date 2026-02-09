@@ -2,37 +2,48 @@ import { useState } from "react";
 import { loginUser } from "../api/authService";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/login.css";
+import { toast } from "react-toastify";
+import FormField from "../components/form/FormField";
 
 export default function Login() {
   const navigate = useNavigate();
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({});
+  const [globalError, setGlobalError] = useState("");
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
 
+  const validate = () => {
+    const newErrors = {};
+    if (!form.email) newErrors.email = "Please enter email before signing in";
+    if (!form.password) newErrors.password = "Please enter password";
+    return newErrors;
+  };
+
   const submit = (e) => {
     e.preventDefault();
+    setGlobalError("");
+    setErrors({});
+
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    console.log("Attempting login with:", form.email); // Debug
 
     const res = loginUser(form);
 
-    if (!res.success) {
-      setError("Email or password incorrect");
-    } else {
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          name: form.email.split("@")[0],
-          email: form.email,
-          registeredAt: new Date().toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-          }),
-        })
-      );
+    console.log("Login result:", res); // Debug
 
-      navigate("/dashboard");
+    if (!res.success) {
+      setGlobalError(res.message || "Email or password incorrect");
+      toast.error(res.message || "Login failed");
+    } else {
+      // toast.success("Login successful!"); // Removed as per request
+      navigate("/dashboard", { replace: true });
     }
   };
 
@@ -41,29 +52,32 @@ export default function Login() {
       <div className="auth-card p-4" style={{ width: 360 }}>
         <h4 className="text-center mb-3">Log in</h4>
 
-        {error && <div className="alert alert-danger">{error}</div>}
+        {globalError && <div className="alert alert-danger">{globalError}</div>}
 
         <form onSubmit={submit}>
-          <input
+          <FormField
             type="email"
-            className="form-control auth-input mb-3"
             placeholder="Email"
             value={form.email}
-            onChange={(e) =>
-              setForm({ ...form, email: e.target.value })
-            }
+            onChange={(e) => {
+              setForm({ ...form, email: e.target.value });
+              if (errors.email) setErrors({ ...errors, email: "" });
+            }}
+            error={errors.email}
             required
           />
 
-          <input
+          <FormField
             type="password"
-            className="form-control auth-input mb-2"
             placeholder="Password"
             value={form.password}
-            onChange={(e) =>
-              setForm({ ...form, password: e.target.value })
-            }
+            onChange={(e) => {
+              setForm({ ...form, password: e.target.value });
+              if (errors.password) setErrors({ ...errors, password: "" });
+            }}
+            error={errors.password}
             required
+            className="form-control auth-input mb-2"
           />
 
           {/* Forgot password */}

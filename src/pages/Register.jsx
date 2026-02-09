@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { registerUser } from "../api/authService";
 import { useNavigate, Link } from "react-router-dom";
-
+import { toast } from "react-toastify";
+import FormField from "../components/form/FormField";
 
 export default function Register() {
   const navigate = useNavigate();
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({});
+  const [globalError, setGlobalError] = useState("");
 
   const [form, setForm] = useState({
     firstName: "",
@@ -19,21 +21,45 @@ export default function Register() {
     confirmPassword: "",
   });
 
+  const validate = () => {
+    const newErrors = {};
+    if (!form.firstName.trim()) newErrors.firstName = "First name is required";
+    if (!form.lastName.trim()) newErrors.lastName = "Last name is required";
+    if (!form.email.trim()) newErrors.email = "Email is required";
+    if (!form.phone.trim()) newErrors.phone = "Phone is required";
+    if (!form.password) newErrors.password = "Password is required";
+    if (form.password !== form.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+    return newErrors;
+  };
+
   const submit = (e) => {
     e.preventDefault();
+    setGlobalError("");
+    setErrors({});
 
-    if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match");
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
     const res = registerUser(form);
 
     if (!res.success) {
-      setError("This email is already registered. Redirecting to login…");
-      setTimeout(() => navigate("/"), 1500);
+      setGlobalError(res.message || "Registration failed");
+      toast.error(res.message || "Registration failed");
     } else {
-      navigate("/");
+      toast.success("Registration successful! Please log in.");
+      setTimeout(() => navigate("/login"), 1000);
+    }
+  };
+
+  const handleChange = (field, value) => {
+    setForm({ ...form, [field]: value });
+    if (errors[field]) {
+      setErrors({ ...errors, [field]: "" });
     }
   };
 
@@ -42,112 +68,108 @@ export default function Register() {
       <div className="auth-card p-5 w-100" style={{ maxWidth: 800 }}>
         <h3 className="text-center mb-3">Register</h3>
 
-        {error && <div className="alert alert-danger">{error}</div>}
+        {globalError && <div className="alert alert-danger">{globalError}</div>}
 
         <form onSubmit={submit} className="row g-3">
           <div className="col-md-6">
-            <input
-              className="form-control auth-input"
+            <FormField
               placeholder="First Name"
               value={form.firstName}
-              onChange={(e) =>
-                setForm({ ...form, firstName: e.target.value })
-              }
+              onChange={(e) => handleChange("firstName", e.target.value)}
+              error={errors.firstName}
+              required
             />
           </div>
 
           <div className="col-md-6">
-            <input
-              className="form-control auth-input"
+            <FormField
               placeholder="Last Name"
               value={form.lastName}
-              onChange={(e) =>
-                setForm({ ...form, lastName: e.target.value })
-              }
+              onChange={(e) => handleChange("lastName", e.target.value)}
+              error={errors.lastName}
+              required
             />
           </div>
 
           <div className="col-md-6">
-            <input
+            <FormField
               type="email"
-              className="form-control auth-input"
               placeholder="Email"
               value={form.email}
-              onChange={(e) =>
-                setForm({ ...form, email: e.target.value })
-              }
+              onChange={(e) => handleChange("email", e.target.value)}
+              error={errors.email}
+              required
             />
           </div>
 
           <div className="col-md-6">
-            <input
-              className="form-control auth-input"
+            <FormField
               placeholder="Phone"
               value={form.phone}
-              onChange={(e) =>
-                setForm({ ...form, phone: e.target.value })
-              }
+              onChange={(e) => handleChange("phone", e.target.value)}
+              error={errors.phone}
+              required
             />
           </div>
 
           <div className="col-md-6">
-            <input
-              className="form-control auth-input"
+            <FormField
               placeholder="Company"
               value={form.company}
-              onChange={(e) =>
-                setForm({ ...form, company: e.target.value })
-              }
+              onChange={(e) => handleChange("company", e.target.value)}
             />
           </div>
 
           <div className="col-md-6">
-            <select
-              className="form-select auth-input"
-              value={form.industry}
-              onChange={(e) =>
-                setForm({ ...form, industry: e.target.value })
-              }
-            >
-              <option value="">Choose Industry</option>
-              <option value="IT">IT</option>
-              <option value="Finance">Finance</option>
-              <option value="Retail">Retail</option>
-            </select>
+            <div className="mb-3">
+              <select
+                className="form-select auth-input"
+                value={form.industry}
+                onChange={(e) => handleChange("industry", e.target.value)}
+              >
+                <option value="">Choose Industry</option>
+                <option value="IT">IT</option>
+                <option value="Finance">Finance</option>
+                <option value="Retail">Retail</option>
+              </select>
+            </div>
           </div>
 
           <div className="col-md-6">
-            <input
-              className="form-control auth-input"
+            <FormField
               placeholder="Country / Region"
               value={form.country}
-              onChange={(e) =>
-                setForm({ ...form, country: e.target.value })
-              }
+              onChange={(e) => handleChange("country", e.target.value)}
             />
           </div>
 
           <div className="col-md-6">
-            <input
+            {/* Empty column or spacer if needed layout-wise, but 
+                 Register.jsx had Password/ConfirmPassword next. 
+                 Wait, original code had country then password.
+                 Let's stick to original order.
+             */}
+          </div>
+
+          <div className="col-md-6">
+            <FormField
               type="password"
-              className="form-control auth-input"
               placeholder="Password"
               value={form.password}
-              onChange={(e) =>
-                setForm({ ...form, password: e.target.value })
-              }
+              onChange={(e) => handleChange("password", e.target.value)}
+              error={errors.password}
+              required
             />
           </div>
 
           <div className="col-md-6">
-            <input
+            <FormField
               type="password"
-              className="form-control auth-input"
               placeholder="Confirm Password"
               value={form.confirmPassword}
-              onChange={(e) =>
-                setForm({ ...form, confirmPassword: e.target.value })
-              }
+              onChange={(e) => handleChange("confirmPassword", e.target.value)}
+              error={errors.confirmPassword}
+              required
             />
           </div>
 
@@ -159,7 +181,7 @@ export default function Register() {
         </form>
 
         <p className="text-center mt-3">
-          Already have an account? <Link to="/">Login</Link>
+          Already have an account? <Link to="/login">Login</Link>
         </p>
       </div>
     </div>

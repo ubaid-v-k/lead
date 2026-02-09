@@ -1,7 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
 
 
-const data = [
+const MONTHLY_DATA = [
   { month: "Jan", front: 400, back: 700 },
   { month: "Feb", front: 200, back: 1100 },
   { month: "Mar", front: 300, back: 500 },
@@ -16,12 +16,31 @@ const data = [
   { month: "Dec", front: 400, back: 750 },
 ];
 
-export default function SalesChart() {
+const WEEKLY_DATA = [
+  { month: "Mon", front: 100, back: 300 },
+  { month: "Tue", front: 200, back: 400 },
+  { month: "Wed", front: 150, back: 350 },
+  { month: "Thu", front: 300, back: 500 },
+  { month: "Fri", front: 250, back: 450 },
+  { month: "Sat", front: 400, back: 600 },
+  { month: "Sun", front: 350, back: 550 },
+];
+
+const YEARLY_DATA = [
+  { month: "2021", front: 2000, back: 5000 },
+  { month: "2022", front: 3000, back: 7000 },
+  { month: "2023", front: 4500, back: 9000 },
+  { month: "2024", front: 6000, back: 11000 },
+];
+
+export default function SalesChart({ view = "Monthly" }) {
+  const chartData = view === "Weekly" ? WEEKLY_DATA : view === "Yearly" ? YEARLY_DATA : MONTHLY_DATA;
+
   return (
     <ResponsiveContainer width="100%" height={280}>
       <BarChart
-        data={data}
-        barGap={-40}              
+        data={chartData}
+        barGap={-40}
         barCategoryGap={32}
         margin={{ top: 20, right: 10, left: 10, bottom: 10 }}
       >
