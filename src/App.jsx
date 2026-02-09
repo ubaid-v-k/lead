@@ -21,7 +21,7 @@ const DashboardRoute = () => (
 export default function App() {
   return (
     <LeadsProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/lead">
         <ToastContainer position="top-right" autoClose={3000} />
         <Routes>
           {/* Auth */}
