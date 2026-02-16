@@ -48,9 +48,13 @@ export default function Topbar({ onMenuClick }) {
       </div>
 
       <div className="topbar-right">
+        {/* GLOBAL SEARCH */}
         <div className="search-box">
           <i className="bi bi-search"></i>
-          <input placeholder="Search" />
+          <input
+            placeholder="Search leads, deals, tickets..."
+            onClick={() => console.log("Global search clicked - could open a command palette")}
+          />
         </div>
 
         {/* NOTIFICATIONS */}
@@ -60,6 +64,7 @@ export default function Topbar({ onMenuClick }) {
             onClick={() => setNotificationOpen(!notificationOpen)}
           >
             <i className="bi bi-bell"></i>
+            <span className="badge">3</span>
           </button>
           {notificationOpen && (
             <NotificationPanel onClose={() => setNotificationOpen(false)} />

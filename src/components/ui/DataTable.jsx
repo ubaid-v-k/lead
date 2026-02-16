@@ -8,6 +8,8 @@ import {
     TableCell,
     Checkbox,
     Typography,
+    Skeleton,
+    Stack,
 } from "@mui/material";
 
 /**
@@ -20,6 +22,7 @@ import {
  * @param {Function} onSelectAll - (checked) => void
  * @param {Function} onRowClick - (row) => void
  * @param {string} primaryColor - Theme primary color
+ * @param {boolean} loading - Loading state
  */
 export default function DataTable({
     columns,
@@ -29,6 +32,7 @@ export default function DataTable({
     onSelectAll,
     onRowClick,
     primaryColor = "#5B4DDB",
+    loading = false,
 }) {
     const isSelected = (id) => selected.includes(id);
 
@@ -71,7 +75,6 @@ export default function DataTable({
                                     fontSize: "12px",
                                     borderTopRightRadius:
                                         onSelect && index === columns.length - 1 ? "8px" : index === columns.length - 1 && !onSelect ? "8px" : "0",
-                                    // Only add radius to last column if no select column exists, or if it is the last
                                 }}
                             >
                                 {col.label}
@@ -80,7 +83,22 @@ export default function DataTable({
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {data.length === 0 ? (
+                    {loading ? (
+                        Array.from(new Array(5)).map((_, index) => (
+                            <TableRow key={`skeleton-${index}`}>
+                                {onSelect && (
+                                    <TableCell padding="checkbox">
+                                        <Skeleton variant="rectangular" width={24} height={24} sx={{ borderRadius: 1 }} />
+                                    </TableCell>
+                                )}
+                                {columns.map((col) => (
+                                    <TableCell key={col.id}>
+                                        <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        ))
+                    ) : data.length === 0 ? (
                         <TableRow>
                             <TableCell colSpan={columns.length + (onSelect ? 1 : 0)} align="center" sx={{ py: 3 }}>
                                 <Typography variant="body2" color="text.secondary">

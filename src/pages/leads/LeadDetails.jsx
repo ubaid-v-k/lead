@@ -40,6 +40,7 @@ import LeadEmails from './LeadEmails';
 import LeadCalls from './LeadCalls';
 import LeadTasks from './LeadTasks';
 import LeadMeetings from './LeadMeetings';
+import AttachmentsSection from '../../components/common/AttachmentsSection';
 
 /* ================= THEME ================= */
 const PRIMARY = "#5B4DDB";
@@ -433,16 +434,7 @@ const LeadDetailPage = () => {
         </Paper>
 
         {/* Attachments */}
-        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <ArrowDownIcon fontSize="small" sx={{ color: "#94a3b8" }} />
-            <Typography variant="subtitle2" fontWeight={700} color="#1e293b">Attachments</Typography>
-          </Stack>
-          <Button size="small" sx={{ textTransform: "none", color: PRIMARY, fontWeight: 600 }} onClick={() => toast.info("Attachment uploaded")}>+ Add</Button>
-        </Stack>
-        <Typography variant="caption" color="#94a3b8" sx={{ pl: 3.5, display: "block" }}>
-          See the files attached to your activities or uploaded to this record.
-        </Typography>
+        <AttachmentsSection />
       </Box>
 
     </Box>

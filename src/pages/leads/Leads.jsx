@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import AppSelect from "../../components/form/AppSelect";
 import {
   Box,
   Stack,
@@ -28,7 +29,7 @@ const PRIMARY = "#5B4DDB";
 
 export default function Leads() {
   const navigate = useNavigate();
-  const { leads, addLead, updateLead, deleteLead, STATUS_COLORS } = useLeads();
+  const { leads, addLead, updateLead, deleteLead, STATUS_COLORS, loading } = useLeads();
 
   // Local UI State
   const [search, setSearch] = useState("");
@@ -38,6 +39,7 @@ export default function Leads() {
   // Filter states
   const [filters, setFilters] = useState({
     status: "",
+    owner: "",
     created: "",
   });
 
@@ -49,6 +51,7 @@ export default function Leads() {
   const [selected, setSelected] = useState([]);
 
   /* ================= FILTERING ================= */
+  /* ================= FILTERING ================= */
   const filteredRows = useMemo(() => {
     const q = search.toLowerCase();
     return leads.filter((r) => {
@@ -56,8 +59,11 @@ export default function Leads() {
         (!q ||
           r.name.toLowerCase().includes(q) ||
           r.email.toLowerCase().includes(q) ||
+          (r.city && r.city.toLowerCase().includes(q)) ||
+          r.owner.toLowerCase().includes(q) ||
           r.phone.includes(q)) &&
         (!filters.status || r.status === filters.status) &&
+        (!filters.owner || r.owner === filters.owner) &&
         (!filters.created || r.created.includes(filters.created))
       );
     });
@@ -216,36 +222,20 @@ export default function Leads() {
           onSearchChange={(e) => setSearch(e.target.value)}
           searchPlaceholder="Search phone, name, email"
         >
-          <TextField
-            select
-            size="small"
+          <AppSelect
+            placeholder="Status"
             value={filters.status}
             onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-            SelectProps={{
-              displayEmpty: true,
-              renderValue: (selected) => {
-                if (!selected) {
-                  return <span style={{ color: "#64748b" }}>Lead Status</span>;
-                }
-                return selected;
-              },
-            }}
-            sx={{
-              minWidth: 160,
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "8px",
-                "& fieldset": { borderColor: "#e2e8f0" }
-              },
-            }}
-          >
-            <MenuItem value="">Lead Status</MenuItem>
-            {Object.keys(STATUS_COLORS).map((s) => (
-              <MenuItem key={s} value={s}>
-                {s}
-              </MenuItem>
-            ))}
-          </TextField>
-
+            options={Object.keys(STATUS_COLORS)}
+            sx={{ minWidth: 150 }}
+          />
+          <AppSelect
+            placeholder="Owner"
+            value={filters.owner}
+            onChange={(e) => setFilters({ ...filters, owner: e.target.value })}
+            options={["Jane Cooper", "Wade Warren", "Brooklyn Simmons"]} // Mock owners
+            sx={{ minWidth: 150 }}
+          />
           <TextField
             type="date"
             size="small"
@@ -397,6 +387,7 @@ export default function Leads() {
           }}
           onRowClick={(row) => handleRowClick(row.id)}
           primaryColor={PRIMARY}
+          loading={loading}
         />
 
         {/* CREATE / EDIT DRAWER */}

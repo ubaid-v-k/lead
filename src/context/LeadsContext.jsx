@@ -18,6 +18,7 @@ export function LeadsProvider({ children }) {
             role: "Salesperson",
             firstName: "Jane",
             lastName: "Cooper",
+            city: "New York",
         },
         {
             id: 2,
@@ -31,6 +32,7 @@ export function LeadsProvider({ children }) {
             role: "Developer",
             firstName: "Wade",
             lastName: "Warren",
+            city: "London",
         },
         {
             id: 3,
@@ -44,6 +46,7 @@ export function LeadsProvider({ children }) {
             role: "Manager",
             firstName: "Brooklyn",
             lastName: "Simmons",
+            city: "Sydney",
         },
         {
             id: 4,
@@ -57,6 +60,7 @@ export function LeadsProvider({ children }) {
             role: "Designer",
             firstName: "Leslie",
             lastName: "Alexander",
+            city: "Tokyo",
         },
         {
             id: 5,
@@ -70,6 +74,7 @@ export function LeadsProvider({ children }) {
             role: "Director",
             firstName: "Jenny",
             lastName: "Wilson",
+            city: "Paris",
         },
         {
             id: 6,
@@ -83,6 +88,7 @@ export function LeadsProvider({ children }) {
             role: "Sales",
             firstName: "Guy",
             lastName: "Hawkins",
+            city: "Berlin",
         },
         {
             id: 7,
@@ -96,6 +102,7 @@ export function LeadsProvider({ children }) {
             role: "Marketing",
             firstName: "Robert",
             lastName: "Fox",
+            city: "Toronto",
         },
         {
             id: 8,
@@ -109,10 +116,20 @@ export function LeadsProvider({ children }) {
             role: "HR",
             firstName: "Cameron",
             lastName: "Williamson",
+            city: "DubaI",
         },
     ];
 
     const [leads, setLeads] = useState(INIT_DATA);
+    const [loading, setLoading] = useState(true);
+
+    // Simulate fetching data
+    React.useEffect(() => {
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, []);
 
     const STATUS_COLORS = {
         New: { bg: "#dbeafe", color: "#2563eb" },
@@ -160,6 +177,7 @@ export function LeadsProvider({ children }) {
                 updateLead,
                 deleteLead,
                 getLead,
+                loading,
                 STATUS_COLORS,
             }}
         >

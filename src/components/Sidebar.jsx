@@ -40,7 +40,7 @@ export default function Sidebar({ open, onClose }) {
         <List>
           {menu.map((item, index) => {
             const Icon = item.icon;
-            const active = location.pathname === item.path;
+            const active = location.pathname.startsWith(item.path);
 
             return (
               <ListItem

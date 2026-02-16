@@ -8,7 +8,7 @@ import { Box, Typography, TextField } from "@mui/material";
  * @param {boolean} required - Show red asterisk
  * @param {object} props - Props passed to TextField
  */
-export default function AppInput({ label, required, sx, ...props }) {
+export default function AppInput({ label, required, error, helperText, sx, ...props }) {
     return (
         <Box>
             {label && (
@@ -19,14 +19,17 @@ export default function AppInput({ label, required, sx, ...props }) {
             <TextField
                 fullWidth
                 variant="outlined"
+                error={!!error}
+                helperText={helperText}
                 sx={{
                     "& .MuiOutlinedInput-root": {
                         borderRadius: "8px",
                         backgroundColor: "#fff",
-                        "& fieldset": { borderColor: "#e2e8f0" },
-                        "&:hover fieldset": { borderColor: "#cbd5e1" },
-                        "&.Mui-focused fieldset": { borderColor: "#5B4DDB" },
+                        "& fieldset": { borderColor: error ? "#ef4444" : "#e2e8f0" },
+                        "&:hover fieldset": { borderColor: error ? "#ef4444" : "#cbd5e1" },
+                        "&.Mui-focused fieldset": { borderColor: error ? "#ef4444" : "#5B4DDB" },
                     },
+                    "& .MuiFormHelperText-root": { marginLeft: 0 },
                     ...sx,
                 }}
                 {...props}

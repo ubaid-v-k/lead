@@ -1,5 +1,4 @@
-import React from "react";
-import { Box, Typography, FormControl, Select, MenuItem } from "@mui/material";
+import { Box, Typography, FormControl, Select, MenuItem, FormHelperText } from "@mui/material";
 
 /**
  * Standardized Select Component
@@ -13,6 +12,8 @@ import { Box, Typography, FormControl, Select, MenuItem } from "@mui/material";
 export default function AppSelect({
     label,
     required,
+    error,
+    helperText,
     options = [],
     placeholder = "Choose",
     sx,
@@ -28,7 +29,7 @@ export default function AppSelect({
                     {label} {required && <span style={{ color: "#ef4444" }}>*</span>}
                 </Typography>
             )}
-            <FormControl fullWidth>
+            <FormControl fullWidth error={!!error}>
                 <Select
                     displayEmpty
                     value={value}
@@ -36,14 +37,17 @@ export default function AppSelect({
                     sx={{
                         borderRadius: "8px",
                         backgroundColor: "#fff",
-                        "& .MuiOutlinedInput-notchedOutline": { borderColor: "#e2e8f0" },
-                        "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#cbd5e1" },
-                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#5B4DDB" },
+                        "& .MuiOutlinedInput-notchedOutline": { borderColor: error ? "#ef4444" : "#e2e8f0" },
+                        "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: error ? "#ef4444" : "#cbd5e1" },
+                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: error ? "#ef4444" : "#5B4DDB" },
                         ...sx,
                     }}
                     renderValue={(selected) => {
-                        if (!selected || selected === "") {
+                        if (!selected || selected.length === 0) {
                             return <span style={{ color: "#94a3b8" }}>{placeholder}</span>;
+                        }
+                        if (Array.isArray(selected)) {
+                            return selected.join(", ");
                         }
                         return selected;
                     }}
@@ -63,6 +67,7 @@ export default function AppSelect({
                         );
                     })}
                 </Select>
+                {helperText && <FormHelperText sx={{ ml: 0 }}>{helperText}</FormHelperText>}
             </FormControl>
         </Box>
     );

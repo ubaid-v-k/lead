@@ -14,10 +14,22 @@ import {
     MenuItem,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
-const STATUS = ["New", "Open", "In Progress", "Lost", "Bad Info"];
+const INDUSTRIES = [
+    "Legal Services",
+    "Healthcare",
+    "Real Estate",
+    "Financial Advisory",
+    "Retail & E-commerce",
+    "Logistics & Supply Chain",
+    "Marketing Agencies",
+    "Education Technology",
+    "Technology",
+    "Other",
+];
+
+const COMPANY_TYPES = ["Public", "Private", "Non-Profit", "Government", "Other"];
 
 // Simple Flag Icon Component
 const FlagIcon = () => (
@@ -31,26 +43,30 @@ const FlagIcon = () => (
 );
 
 const INITIAL_VALUES = {
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    title: "",
+    domain: "",
+    name: "",
     owner: "",
-    status: "",
+    industry: "",
+    type: "",
+    city: "",
+    country: "",
+    employees: "",
+    revenue: "",
+    phone: "",
 };
 
 const validate = (values) => {
     let tempErrors = {};
-    if (!values.firstName) tempErrors.firstName = "First Name is required";
-    if (!values.lastName) tempErrors.lastName = "Last Name is required";
-    if (!values.email) tempErrors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(values.email)) tempErrors.email = "Email is invalid";
+    if (!values.domain) tempErrors.domain = "Domain Name is required";
+    if (!values.name) tempErrors.name = "Company Name is required";
+    if (!values.owner) tempErrors.owner = "Company Owner is required";
+    if (!values.industry) tempErrors.industry = "Industry is required";
+    if (!values.type) tempErrors.type = "Type is required";
     if (!values.phone) tempErrors.phone = "Phone is required";
     return tempErrors;
 };
 
-export default function CreateLead({ open, onClose, onSave, editData }) {
+export default function CreateCompany({ open, onClose, onSave, editData }) {
     const toast = useToast();
 
     const {
@@ -63,11 +79,10 @@ export default function CreateLead({ open, onClose, onSave, editData }) {
         resetForm,
     } = useForm(
         INITIAL_VALUES,
-        true, // Validate on change
+        true,
         validate
     );
 
-    // Populate form on edit
     useEffect(() => {
         if (editData) {
             setValues(editData);
@@ -78,7 +93,7 @@ export default function CreateLead({ open, onClose, onSave, editData }) {
 
     const onSubmit = (formData) => {
         onSave(formData);
-        toast.success(editData ? "Lead updated successfully" : "Lead created successfully");
+        toast.success(editData ? "Company updated successfully" : "Company created successfully");
         onClose();
     };
 
@@ -104,7 +119,7 @@ export default function CreateLead({ open, onClose, onSave, editData }) {
                     sx={{ borderBottom: "1px solid #e2e8f0" }}
                 >
                     <Typography variant="h6" fontWeight={700} color="#1e293b">
-                        {editData ? "Edit Lead" : "Create Lead"}
+                        {editData ? "Edit Company" : "Create Company"}
                     </Typography>
                     <IconButton onClick={onClose} size="small" sx={{ color: "#64748b" }}>
                         <CloseIcon />
@@ -114,48 +129,125 @@ export default function CreateLead({ open, onClose, onSave, editData }) {
                 {/* BODY */}
                 <Box px={3} py={4} sx={{ flex: 1, overflowY: "auto" }}>
                     <Stack spacing={3}>
-                        {/* Email */}
+
+                        {/* Domain Name */}
                         <AppInput
-                            label="Email"
+                            label="Domain Name"
                             required
                             placeholder="Enter"
-                            name="email"
-                            value={values.email}
+                            name="domain"
+                            value={values.domain}
                             onChange={handleChange}
-                            error={errors.email}
-                            helperText={errors.email}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <EmailOutlinedIcon sx={{ color: "#94a3b8" }} />
-                                    </InputAdornment>
-                                ),
-                            }}
+                            error={errors.domain}
+                            helperText={errors.domain}
                         />
 
-                        {/* First Name */}
+                        {/* Company Name */}
                         <AppInput
-                            label="First Name"
+                            label="Company Name"
                             required
                             placeholder="Enter"
-                            name="firstName"
-                            value={values.firstName}
+                            name="name"
+                            value={values.name}
                             onChange={handleChange}
-                            error={errors.firstName}
-                            helperText={errors.firstName}
+                            error={errors.name}
+                            helperText={errors.name}
                         />
 
-                        {/* Last Name */}
-                        <AppInput
-                            label="Last Name"
+                        {/* Company Owner */}
+                        <AppSelect
+                            label="Company Owner"
                             required
-                            placeholder="Enter"
-                            name="lastName"
-                            value={values.lastName}
+                            name="owner"
+                            value={values.owner}
                             onChange={handleChange}
-                            error={errors.lastName}
-                            helperText={errors.lastName}
-                        />
+                            placeholder="Enter"
+                            error={errors.owner}
+                            helperText={errors.owner}
+                        >
+                            <MenuItem value="Jane Cooper">Jane Cooper</MenuItem>
+                            <MenuItem value="Wade Warren">Wade Warren</MenuItem>
+                            <MenuItem value="Brooklyn Simmons">Brooklyn Simmons</MenuItem>
+                            <MenuItem value="Leslie Alexander">Leslie Alexander</MenuItem>
+                            <MenuItem value="Jenny Wilson">Jenny Wilson</MenuItem>
+                            <MenuItem value="Guy Hawkins">Guy Hawkins</MenuItem>
+                            <MenuItem value="Robert Fox">Robert Fox</MenuItem>
+                            <MenuItem value="Cameron Williamson">Cameron Williamson</MenuItem>
+                        </AppSelect>
+
+                        {/* Row: Industry & Type */}
+                        <Stack direction="row" spacing={2}>
+                            <Box sx={{ width: "50%" }}>
+                                <AppSelect
+                                    label="Industry"
+                                    required
+                                    name="industry"
+                                    value={values.industry}
+                                    onChange={handleChange}
+                                    placeholder="Choose"
+                                    options={INDUSTRIES}
+                                    error={errors.industry}
+                                    helperText={errors.industry}
+                                />
+                            </Box>
+                            <Box sx={{ width: "50%" }}>
+                                <AppSelect
+                                    label="Type"
+                                    required
+                                    name="type"
+                                    value={values.type}
+                                    onChange={handleChange}
+                                    placeholder="Choose"
+                                    options={COMPANY_TYPES}
+                                    error={errors.type}
+                                    helperText={errors.type}
+                                />
+                            </Box>
+                        </Stack>
+
+                        {/* Row: City & Country/Region */}
+                        <Stack direction="row" spacing={2}>
+                            <Box sx={{ width: "50%" }}>
+                                <AppInput
+                                    label="City"
+                                    placeholder="Enter"
+                                    name="city"
+                                    value={values.city}
+                                    onChange={handleChange}
+                                />
+                            </Box>
+                            <Box sx={{ width: "50%" }}>
+                                <AppInput
+                                    label="Country/Region"
+                                    placeholder="Enter"
+                                    name="country"
+                                    value={values.country}
+                                    onChange={handleChange}
+                                />
+                            </Box>
+                        </Stack>
+
+                        {/* Row: No of Employees & Annual Revenue */}
+                        <Stack direction="row" spacing={2}>
+                            <Box sx={{ width: "50%" }}>
+                                <AppInput
+                                    label="No of Employees"
+                                    placeholder="Enter"
+                                    name="employees"
+                                    value={values.employees}
+                                    onChange={handleChange}
+                                />
+                            </Box>
+                            <Box sx={{ width: "50%" }}>
+                                <AppInput
+                                    label="Annual Revenue"
+                                    placeholder="Enter"
+                                    name="revenue"
+                                    value={values.revenue}
+                                    onChange={handleChange}
+                                />
+                            </Box>
+                        </Stack>
 
                         {/* Phone Number */}
                         <AppInput
@@ -189,46 +281,6 @@ export default function CreateLead({ open, onClose, onSave, editData }) {
                             }}
                         />
 
-                        {/* Job Title */}
-                        <AppInput
-                            label="Job Title"
-                            placeholder="Enter"
-                            name="title"
-                            value={values.title}
-                            onChange={handleChange}
-                        />
-
-                        {/* Contact Owner */}
-                        <AppSelect
-                            label="Contact Owner"
-                            name="owner"
-                            value={values.owner}
-                            onChange={handleChange}
-                            placeholder="Choose"
-                        >
-                            <MenuItem value="Jane Cooper">Jane Cooper</MenuItem>
-                            <MenuItem value="Wade Warren">Wade Warren</MenuItem>
-                            <MenuItem value="Brooklyn Simmons">Brooklyn Simmons</MenuItem>
-                        </AppSelect>
-
-                        {/* City */}
-                        <AppInput
-                            label="City"
-                            placeholder="Enter"
-                            name="city"
-                            value={values.city || ""}
-                            onChange={handleChange}
-                        />
-
-                        {/* Lead Status */}
-                        <AppSelect
-                            label="Lead Status"
-                            name="status"
-                            value={values.status}
-                            onChange={handleChange}
-                            placeholder="Choose"
-                            options={STATUS}
-                        />
                     </Stack>
                 </Box>
 

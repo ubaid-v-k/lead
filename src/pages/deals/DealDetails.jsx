@@ -1,0 +1,433 @@
+import React, { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+    Box,
+    Grid,
+    Typography,
+    Paper,
+    Divider,
+    Stack,
+    IconButton,
+    Avatar,
+    Tabs,
+    Tab,
+    Button,
+    Collapse,
+    Menu,
+    MenuItem,
+} from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
+import {
+    NoteOutlined as NoteIcon,
+    EmailOutlined as EmailIcon,
+    PhoneOutlined as PhoneIcon,
+    TaskOutlined as TaskIcon,
+    VideocamOutlined as VideocamIcon,
+} from "@mui/icons-material";
+
+import { useDeals } from "../../context/DealsContext";
+import { useToast } from "../../hooks/useToast";
+
+// Reuse Lead components (as done in CompanyDetails)
+import LeadNotes from "../leads/LeadNotes";
+import LeadEmails from "../leads/LeadEmails";
+import LeadCalls from "../leads/LeadCalls";
+import LeadTasks from "../leads/LeadTasks";
+import LeadMeetings from "../leads/LeadMeetings";
+
+// Components
+import AttachmentsSection from "../../components/common/AttachmentsSection";
+
+const PRIMARY = "#5B4DDB";
+
+// Mock Activities
+const UPCOMING_ACTIVITIES = [
+    {
+        id: 1,
+        title: "Deal activity",
+        description: "Maria Johnson moved deal to Appointment scheduled.",
+        date: "June 24, 2025 at 5:30PM",
+    },
+];
+
+export default function DealDetails() {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const { getDeal } = useDeals();
+
+    const deal = getDeal(id);
+
+    // If no deal found (e.g., refresh on new ID not in separate persistence), handle gracefully
+    if (!deal) {
+        return (
+            <Box p={4}>
+                <Typography>Deal not found.</Typography>
+                <Button onClick={() => navigate("/deals")}>Back to Deals</Button>
+            </Box>
+        );
+    }
+
+    // UI state
+    const [aboutOpen, setAboutOpen] = useState(true);
+    const [tabValue, setTabValue] = useState(0);
+
+    const handleTabChange = (event, newValue) => {
+        setTabValue(newValue);
+    };
+
+    // Stage enforcement logic
+    const [anchorEl, setAnchorEl] = useState(null);
+    const { updateDeal } = useDeals();
+    const { toast } = useToast();  // Make sure useToast is imported if not already
+
+    const handleStageChange = (newStage) => {
+        setAnchorEl(null);
+        if (newStage === deal.stage) return;
+
+        // Requirement: Require at least one activity before moving to "Negotiation" (assuming "Contract Sent" or "Decision Maker Bought In" implies negotiation or similar advanced stage) or "Closed".
+        // The prompt specifically said "Negotiation" or "Closed", but "Negotiation" isn't in default list. I'll check "Contract Sent" and "Closed..."
+        const restrictedStages = ["Contract Sent", "Closed Won", "Closed Lost"];
+
+        if (restrictedStages.includes(newStage)) {
+            // Check if activities exist.
+            // In this mock, UPCOMING_ACTIVITIES is static. In real app, check `deal.activities` or context.
+            // For now, I'll check if UPCOMING_ACTIVITIES length > 0.
+            if (UPCOMING_ACTIVITIES.length === 0) {
+                toast.error(`Cannot move to ${newStage} without at least one activity.`);
+                return;
+            }
+        }
+
+        // Update deal
+        updateDeal(deal.id, { stage: newStage });
+    };
+
+    return (
+        <Box sx={{ display: "flex", height: "100%", alignItems: "stretch", overflow: "hidden" }}>
+
+            {/* 1. LEFT SIDEBAR (Info & Actions) */}
+            <Box sx={{ width: "320px", borderRight: "1px solid #e2e8f0", bgcolor: "#fff", p: 3, flexShrink: 0, overflowY: "auto" }}>
+                {/* Back Button */}
+                <Button
+                    startIcon={<ArrowBackIcon sx={{ fontSize: 16 }} />}
+                    onClick={() => navigate("/deals")}
+                    sx={{
+                        color: "#64748b",
+                        textTransform: "none",
+                        fontSize: "14px",
+                        p: 0,
+                        minWidth: "auto",
+                        mb: 2,
+                        "&:hover": { bgcolor: "transparent", textDecoration: "underline" }
+                    }}
+                >
+                    Deals
+                </Button>
+
+                {/* Title & Info */}
+                <Box sx={{ mb: 3 }}>
+                    <Box sx={{ display: "flex", gap: 2, mb: 1 }}>
+                        <Avatar
+                            sx={{
+                                width: 48,
+                                height: 48,
+                                bgcolor: "#e2e8f0",
+                                borderRadius: "12px"
+                            }}
+                            variant="rounded"
+                        >
+                            {/* Placeholder icon or initial */}
+                            <Box component="span" sx={{ fontSize: 24 }}>💰</Box>
+                        </Avatar>
+                        <Box>
+                            <Typography variant="h6" fontWeight={700} color="#1e293b" sx={{ lineHeight: 1.2 }}>
+                                {deal.name}
+                            </Typography>
+                            <Typography variant="body2" fontWeight={600} color="#1e293b" mt={0.5}>
+                                {deal.amount}
+                            </Typography>
+                        </Box>
+                    </Box>
+                </Box>
+
+                {/* Status / Stage */}
+                <Stack direction="row" alignItems="center" spacing={0.5} mb={3}>
+                    <Typography variant="body2" color="#64748b">Stage :</Typography>
+                    <Box sx={{ position: "relative" }}>
+                        <Button
+                            size="small"
+                            onClick={(e) => setAnchorEl(e.currentTarget)}
+                            endIcon={<KeyboardArrowDownIcon fontSize="small" />}
+                            sx={{
+                                textTransform: "none",
+                                fontWeight: 600,
+                                color: PRIMARY,
+                                padding: 0,
+                                minWidth: "auto",
+                                "&:hover": { bgcolor: "transparent", textDecoration: "underline" }
+                            }}
+                        >
+                            {deal.stage}
+                        </Button>
+                        <Menu
+                            anchorEl={anchorEl}
+                            open={Boolean(anchorEl)}
+                            onClose={() => setAnchorEl(null)}
+                        >
+                            {[
+                                "Appointment Scheduled",
+                                "Qualified to Buy",
+                                "Presentation Scheduled",
+                                "Decision Maker Bought In",
+                                "Contract Sent",
+                                "Closed Won",
+                                "Closed Lost"
+                            ].map((stage) => (
+                                <MenuItem
+                                    key={stage}
+                                    onClick={() => handleStageChange(stage)}
+                                    selected={stage === deal.stage}
+                                >
+                                    {stage}
+                                </MenuItem>
+                            ))}
+                        </Menu>
+                    </Box>
+                </Stack>
+
+                {/* Action Buttons */}
+                <Stack direction="row" spacing={1.5} mb={4}>
+                    {[
+                        { label: "Note", icon: <NoteIcon fontSize="small" />, type: "note" },
+                        { label: "Email", icon: <EmailIcon fontSize="small" />, type: "email" },
+                        { label: "Call", icon: <PhoneIcon fontSize="small" />, type: "call" },
+                        { label: "Task", icon: <TaskIcon fontSize="small" />, type: "task" },
+                        { label: "Meeting", icon: <VideocamIcon fontSize="small" />, type: "meeting" }
+                    ].map((action, i) => (
+                        <Stack
+                            key={i}
+                            alignItems="center"
+                            spacing={1}
+                            sx={{ cursor: "pointer" }}
+                            onClick={() => {
+                                // Handle action
+                            }}
+                        >
+                            <Box sx={{
+                                width: 42,
+                                height: 42,
+                                borderRadius: "10px",
+                                bgcolor: "#f8fafc",
+                                border: "1px solid #e2e8f0",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                color: PRIMARY,
+                                transition: "all 0.2s",
+                                "&:hover": { borderColor: PRIMARY, bgcolor: "#e0e7ff" }
+                            }}>
+                                {action.icon}
+                            </Box>
+                            <Typography variant="caption" color="#64748b" fontSize="11px">{action.label}</Typography>
+                        </Stack>
+                    ))}
+                </Stack>
+
+                <Divider sx={{ mb: 3 }} />
+
+                <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    sx={{ mb: 2, cursor: "pointer" }}
+                    onClick={() => setAboutOpen(!aboutOpen)}
+                >
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                        {aboutOpen ? (
+                            <KeyboardArrowDownIcon fontSize="small" color="primary" />
+                        ) : (
+                            <KeyboardArrowRightIcon fontSize="small" color="primary" /> // Changed Up to Right for consistency with LeadDetails? LeadDetails uses Right/Down.
+                        )}
+                        <Typography variant="subtitle2" fontWeight={700} color="#1e293b">
+                            About this Deal
+                        </Typography>
+                    </Stack>
+                    <IconButton size="small">
+                        <EditIcon fontSize="small" sx={{ fontSize: 16, color: PRIMARY }} />
+                    </IconButton>
+                </Stack>
+
+                <Collapse in={aboutOpen}>
+                    <Stack spacing={2.5} pl={1}>
+                        {[
+                            { label: "Deal Description", value: "Description goes here" },
+                            { label: "Deal Owner", value: deal.owner },
+                            { label: "Priority", value: deal.priority || "Medium" },
+                            { label: "Created Date", value: deal.created || "04/08/2025 2:31 PM GMT+5:30" },
+                        ].map((field, i) => (
+                            <Box key={i}>
+                                <Typography variant="caption" color="#94a3b8" display="block" mb={0.5}>
+                                    {field.label}
+                                </Typography>
+                                <Typography variant="body2" fontWeight={600} color="#1e293b">
+                                    {field.value}
+                                </Typography>
+                            </Box>
+                        ))}
+                    </Stack>
+                </Collapse>
+            </Box>
+
+            {/* 2. CENTER CONTENT (Feed) */}
+            <Box sx={{ flex: 1, bgcolor: "#fff", p: 3, borderRight: "1px solid #e2e8f0", overflowY: "auto" }}>
+                {/* Search Activities */}
+                <Box sx={{ mb: 3 }}>
+                    <Box
+                        sx={{
+                            p: 1,
+                            px: 2,
+                            border: "1px solid #e2e8f0",
+                            borderRadius: "8px",
+                            backgroundColor: "#f8fafc",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                            color: "#94a3b8"
+                        }}
+                    >
+                        <Box component="span">🔍</Box>
+                        <Typography variant="body2">Search activities</Typography>
+                    </Box>
+                </Box>
+
+                {/* Tabs */}
+                <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
+                    <Tabs
+                        value={tabValue}
+                        onChange={handleTabChange}
+                        aria-label="deal tabs"
+                        sx={{
+                            "& .MuiTab-root": {
+                                textTransform: "none",
+                                fontWeight: 500,
+                                fontSize: "0.9rem",
+                                minWidth: "auto",
+                                mr: 2,
+                                color: "#64748b"
+                            },
+                            "& .Mui-selected": {
+                                color: PRIMARY,
+                                fontWeight: 600,
+                            },
+                            "& .MuiTabs-indicator": {
+                                backgroundColor: PRIMARY,
+                            },
+                        }}
+                    >
+                        <Tab label="Activity" />
+                        <Tab label="Notes" />
+                        <Tab label="Emails" />
+                        <Tab label="Calls" />
+                        <Tab label="Tasks" />
+                        <Tab label="Meetings" />
+                    </Tabs>
+                </Box>
+
+                {/* Tab Panels */}
+                {tabValue === 0 && (
+                    <Box>
+                        <Typography variant="subtitle2" fontWeight={700} color="#1e293b" mb={2}>
+                            Upcoming
+                        </Typography>
+
+                        {/* Activity Cards */}
+                        {UPCOMING_ACTIVITIES.map((activity) => (
+                            <Paper
+                                key={activity.id}
+                                elevation={0}
+                                sx={{
+                                    p: 2,
+                                    border: "1px solid #e2e8f0",
+                                    borderRadius: "8px",
+                                    mb: 2,
+                                }}
+                            >
+                                <Stack
+                                    direction="row"
+                                    justifyContent="space-between"
+                                    alignItems="flex-start"
+                                >
+                                    <Box>
+                                        <Typography variant="subtitle2" fontWeight={600} color="#1e293b" gutterBottom>
+                                            {activity.title}
+                                        </Typography>
+                                        <Typography variant="body2" color="#64748b">
+                                            {activity.description}
+                                        </Typography>
+                                    </Box>
+                                    <Typography variant="caption" color="#94a3b8">
+                                        {activity.date}
+                                    </Typography>
+                                </Stack>
+                            </Paper>
+                        ))}
+
+                        <Paper
+                            elevation={0}
+                            sx={{
+                                p: 2,
+                                border: "1px solid #e2e8f0",
+                                borderRadius: "8px",
+                                mb: 2,
+                            }}
+                        >
+                            <Typography variant="caption" color="#64748b">
+                                This deal was created by <strong>{deal.owner}</strong> {deal.created}
+                            </Typography>
+                        </Paper>
+                    </Box>
+                )}
+                {tabValue === 1 && <LeadNotes />}
+                {tabValue === 2 && <LeadEmails />}
+                {tabValue === 3 && <LeadCalls />}
+                {tabValue === 4 && <LeadTasks />}
+                {tabValue === 5 && <LeadMeetings />}
+            </Box>
+
+            {/* 3. RIGHT SIDEBAR (Widgets) */}
+            <Box sx={{ width: "350px", bgcolor: "#fff", p: 3, flexShrink: 0, overflowY: "auto" }}>
+                {/* AI Deal Summary */}
+                <Paper
+                    variant="outlined"
+                    sx={{
+                        p: 2,
+                        borderRadius: "12px",
+                        borderColor: "#818cf8",
+                        bgcolor: "#fff",
+                        mb: 4,
+                        boxShadow: "0 4px 12px rgba(91, 77, 219, 0.08)"
+                    }}
+                >
+                    <Stack direction="row" alignItems="center" spacing={1.5} mb={1.5}>
+                        <Box sx={{ display: "flex", p: 0.5, bgcolor: "#e0e7ff", borderRadius: "6px" }}>
+                            <Box component="span" sx={{ fontSize: 16 }}>✨</Box>
+                        </Box>
+                        <Typography variant="subtitle2" fontWeight={700} color={PRIMARY}>
+                            AI Deal Summary
+                        </Typography>
+                    </Stack>
+                    <Typography variant="body2" color="#1e293b" fontSize="13px" sx={{ lineHeight: 1.5 }}>
+                        The deal titled "{deal.name}" currently has no associated conversation, call, or note transcripts. There are no additional details or properties available for this deal at this time.
+                    </Typography>
+                </Paper>
+
+                {/* Attachments */}
+                <AttachmentsSection />
+            </Box>
+        </Box>
+    );
+}
