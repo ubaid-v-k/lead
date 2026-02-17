@@ -16,6 +16,7 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CreateCompany from "./CreateCompany";
+import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import DataTable from "../../components/ui/DataTable";
 import { useNavigate } from "react-router-dom";
 import { useCompanies } from "../../context/CompaniesContext";
@@ -47,6 +48,10 @@ export default function Companies() {
     // Create/Edit Drawer
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [editData, setEditData] = useState(null);
+
+    // Delete Dialog
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [companyToDelete, setCompanyToDelete] = useState(null);
 
     // Selection
     const [selected, setSelected] = useState([]);
@@ -108,9 +113,16 @@ export default function Companies() {
 
     const handleDelete = (id, e) => {
         e.stopPropagation();
-        if (window.confirm("Are you sure you want to delete this company?")) {
-            deleteCompany(id);
+        setCompanyToDelete(id);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleConfirmDelete = () => {
+        if (companyToDelete) {
+            deleteCompany(companyToDelete);
         }
+        setDeleteDialogOpen(false);
+        setCompanyToDelete(null);
     };
 
     const handleEdit = (company, e) => {
@@ -416,6 +428,16 @@ export default function Companies() {
                     onClose={() => setDrawerOpen(false)}
                     onSave={handleSave}
                     editData={editData}
+                />
+
+                <ConfirmDialog
+                    open={deleteDialogOpen}
+                    onClose={() => setDeleteDialogOpen(false)}
+                    onConfirm={handleConfirmDelete}
+                    title="Delete Company"
+                    message="Are you sure you want to delete this company? This action cannot be undone."
+                    confirmText="Delete"
+                    cancelText="Cancel"
                 />
             </Box>
         </PageContainer>

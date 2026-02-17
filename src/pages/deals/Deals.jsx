@@ -16,6 +16,7 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CreateDeal from "./CreateDeal";
+import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import DataTable from "../../components/ui/DataTable";
 import { useDeals } from "../../context/DealsContext";
 import PageContainer from "../../components/common/PageContainer";
@@ -44,8 +45,13 @@ export default function Deals() {
     });
 
     // Create/Edit Drawer
+    // Create/Edit Drawer
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [editData, setEditData] = useState(null);
+
+    // Delete Dialog
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [dealToDelete, setDealToDelete] = useState(null);
 
     // Selection
     const [selected, setSelected] = useState([]);
@@ -97,9 +103,16 @@ export default function Deals() {
 
     const handleDelete = (id, e) => {
         e.stopPropagation();
-        if (window.confirm("Are you sure you want to delete this deal?")) {
-            deleteDeal(id);
+        setDealToDelete(id);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleConfirmDelete = () => {
+        if (dealToDelete) {
+            deleteDeal(dealToDelete);
         }
+        setDeleteDialogOpen(false);
+        setDealToDelete(null);
     };
 
     const handleEdit = (deal, e) => {
@@ -389,6 +402,16 @@ export default function Deals() {
                     onClose={() => setDrawerOpen(false)}
                     onSave={handleSave}
                     editData={editData}
+                />
+
+                <ConfirmDialog
+                    open={deleteDialogOpen}
+                    onClose={() => setDeleteDialogOpen(false)}
+                    onConfirm={handleConfirmDelete}
+                    title="Delete Deal"
+                    message="Are you sure you want to delete this deal? This action cannot be undone."
+                    confirmText="Delete"
+                    cancelText="Cancel"
                 />
             </Box>
         </PageContainer>

@@ -17,6 +17,7 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CreateLead from "./CreateLead";
+import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import DataTable from "../../components/ui/DataTable";
 import { useNavigate } from "react-router-dom";
 import { useLeads } from "../../context/LeadsContext";
@@ -46,6 +47,10 @@ export default function Leads() {
   // Create/Edit Drawer
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editData, setEditData] = useState(null);
+
+  // Delete Dialog
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [leadToDelete, setLeadToDelete] = useState(null);
 
   // Selection
   const [selected, setSelected] = useState([]);
@@ -94,9 +99,16 @@ export default function Leads() {
 
   const handleDelete = (id, e) => {
     e.stopPropagation();
-    if (window.confirm("Are you sure you want to delete this lead?")) {
-      deleteLead(id);
+    setLeadToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (leadToDelete) {
+      deleteLead(leadToDelete);
     }
+    setDeleteDialogOpen(false);
+    setLeadToDelete(null);
   };
 
   const handleEdit = (lead, e) => {
@@ -397,6 +409,16 @@ export default function Leads() {
           onClose={() => setDrawerOpen(false)}
           onSave={handleSave}
           editData={editData}
+        />
+
+        <ConfirmDialog
+          open={deleteDialogOpen}
+          onClose={() => setDeleteDialogOpen(false)}
+          onConfirm={handleConfirmDelete}
+          title="Delete Lead"
+          message="Are you sure you want to delete this lead? This action cannot be undone."
+          confirmText="Delete"
+          cancelText="Cancel"
         />
       </Box>
     </PageContainer>

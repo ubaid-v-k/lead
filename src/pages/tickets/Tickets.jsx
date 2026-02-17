@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import DataTable from "../../components/ui/DataTable";
 import { useTickets } from "../../context/TicketsContext";
 import PageContainer from "../../components/common/PageContainer";
@@ -41,6 +42,10 @@ export default function Tickets() {
 
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [editData, setEditData] = useState(null);
+
+    // Delete Dialog
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [ticketToDelete, setTicketToDelete] = useState(null);
 
     // Filter states
     const [filters, setFilters] = useState({
@@ -99,9 +104,16 @@ export default function Tickets() {
 
     const handleDelete = (id, e) => {
         e.stopPropagation();
-        if (window.confirm("Are you sure you want to delete this ticket?")) {
-            deleteTicket(id);
+        setTicketToDelete(id);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleConfirmDelete = () => {
+        if (ticketToDelete) {
+            deleteTicket(ticketToDelete);
         }
+        setDeleteDialogOpen(false);
+        setTicketToDelete(null);
     };
 
     const handleEdit = (row, e) => {
@@ -387,6 +399,16 @@ export default function Tickets() {
                 onClose={() => setIsDrawerOpen(false)}
                 onSave={handleSaveTicket}
                 editData={editData}
+            />
+
+            <ConfirmDialog
+                open={deleteDialogOpen}
+                onClose={() => setDeleteDialogOpen(false)}
+                onConfirm={handleConfirmDelete}
+                title="Delete Ticket"
+                message="Are you sure you want to delete this ticket? This action cannot be undone."
+                confirmText="Delete"
+                cancelText="Cancel"
             />
         </PageContainer>
     );
