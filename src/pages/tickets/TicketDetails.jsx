@@ -78,10 +78,10 @@ export default function TicketDetails() {
 
     return (
 
-        <Box sx={{ display: "flex", height: "100%", alignItems: "stretch", overflow: "hidden" }}>
+        <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, height: { xs: "auto", md: "100%" }, alignItems: "stretch", overflow: { xs: "auto", md: "hidden" } }}>
 
             {/* 1. LEFT SIDEBAR (Info & Actions) */}
-            <Box sx={{ width: "320px", borderRight: "1px solid #e2e8f0", bgcolor: "#fff", p: 3, flexShrink: 0, overflowY: "auto" }}>
+            <Box sx={{ width: { xs: "100%", md: "320px" }, borderRight: { xs: "none", md: "1px solid #e2e8f0" }, borderBottom: { xs: "1px solid #e2e8f0", md: "none" }, bgcolor: "#fff", p: 3, flexShrink: 0, overflowY: { xs: "visible", md: "auto" } }}>
                 {/* Back Button */}
                 <Button
                     startIcon={<ArrowBackIcon sx={{ fontSize: 16 }} />}
@@ -133,7 +133,7 @@ export default function TicketDetails() {
                 </Stack>
 
                 {/* Action Buttons */}
-                <Stack direction="row" spacing={1.5} mb={4}>
+                <Stack direction="row" spacing={1.5} mb={4} sx={{ overflowX: "auto", pb: 1 }}>
                     {[
                         { label: "Note", icon: <NoteIcon fontSize="small" />, type: "note" },
                         { label: "Email", icon: <EmailIcon fontSize="small" />, type: "email" },
@@ -145,7 +145,7 @@ export default function TicketDetails() {
                             key={i}
                             alignItems="center"
                             spacing={1}
-                            sx={{ cursor: "pointer" }}
+                            sx={{ cursor: "pointer", minWidth: 50 }}
                             onClick={() => {
                                 // Handle action
                             }}
@@ -218,7 +218,7 @@ export default function TicketDetails() {
             </Box>
 
             {/* 2. CENTER CONTENT (Feed) */}
-            <Box sx={{ flex: 1, bgcolor: "#fff", p: 3, borderRight: "1px solid #e2e8f0", overflowY: "auto" }}>
+            <Box sx={{ flex: 1, bgcolor: "#fff", p: 3, borderRight: { xs: "none", md: "1px solid #e2e8f0" }, borderBottom: { xs: "1px solid #e2e8f0", md: "none" }, overflowY: { xs: "visible", md: "auto" } }}>
                 {/* Search Activities */}
                 <Box sx={{ mb: 3 }}>
                     <Box
@@ -244,6 +244,8 @@ export default function TicketDetails() {
                     <Tabs
                         value={tabValue}
                         onChange={handleTabChange}
+                        variant="scrollable"
+                        scrollButtons="auto"
                         aria-label="ticket tabs"
                         sx={{
                             "& .MuiTab-root": {
@@ -334,7 +336,7 @@ export default function TicketDetails() {
             </Box>
 
             {/* 3. RIGHT SIDEBAR (Widgets) */}
-            <Box sx={{ width: "350px", bgcolor: "#fff", p: 3, flexShrink: 0, overflowY: "auto" }}>
+            <Box sx={{ width: { xs: "100%", md: "350px" }, bgcolor: "#fff", p: 3, flexShrink: 0, overflowY: { xs: "visible", md: "auto" } }}>
                 {/* AI Ticket Summary */}
                 <Paper
                     variant="outlined"

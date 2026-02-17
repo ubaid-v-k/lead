@@ -45,7 +45,7 @@ export default function DataTable({
         <Box
             sx={{
                 borderRadius: "0px",
-                overflow: "visible",
+                overflowX: "auto",
             }}
         >
             <Table>

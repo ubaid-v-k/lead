@@ -162,7 +162,6 @@ export function LeadsProvider({ children }) {
 
     const deleteLead = (id) => {
         setLeads(leads.filter((lead) => lead.id !== id));
-        toast.success("Lead deleted successfully");
     };
 
     const getLead = (id) => {

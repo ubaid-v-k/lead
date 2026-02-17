@@ -168,7 +168,6 @@ export function CompaniesProvider({ children }) {
 
     const deleteCompany = (id) => {
         setCompanies(companies.filter((c) => c.id !== id));
-        toast.success("Company deleted successfully");
     };
 
     const getCompany = (id) => {
