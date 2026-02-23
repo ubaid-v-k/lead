@@ -21,6 +21,8 @@ export default function Register() {
     confirmPassword: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const validate = () => {
     const newErrors = {};
     if (!form.firstName.trim()) newErrors.firstName = "First name is required";
@@ -34,7 +36,7 @@ export default function Register() {
     return newErrors;
   };
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     setGlobalError("");
     setErrors({});
@@ -45,14 +47,22 @@ export default function Register() {
       return;
     }
 
-    const res = registerUser(form);
+    setLoading(true);
+    try {
+      const res = await registerUser(form);
 
-    if (!res.success) {
-      setGlobalError(res.message || "Registration failed");
-      toast.error(res.message || "Registration failed");
-    } else {
-      toast.success("Registration successful! Please log in.");
-      setTimeout(() => navigate("/login"), 1000);
+      if (!res.success) {
+        setGlobalError(res.message || "Registration failed");
+        toast.error(res.message || "Registration failed");
+      } else {
+        toast.success("Registration successful! Please log in.");
+        setTimeout(() => navigate("/login"), 1000);
+      }
+    } catch (err) {
+      console.error("Registration error:", err);
+      setGlobalError("An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -174,8 +184,8 @@ export default function Register() {
           </div>
 
           <div className="col-12">
-            <button className="btn auth-btn w-100 mt-2">
-              Register
+            <button className="btn auth-btn w-100 mt-2" disabled={loading}>
+              {loading ? "Registering..." : "Register"}
             </button>
           </div>
         </form>

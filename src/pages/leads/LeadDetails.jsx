@@ -41,6 +41,7 @@ import LeadCalls from './LeadCalls';
 import LeadTasks from './LeadTasks';
 import LeadMeetings from './LeadMeetings';
 import AttachmentsSection from '../../components/common/AttachmentsSection';
+import ComposeEmailDialog from '../../components/common/ComposeEmailDialog';
 
 /* ================= THEME ================= */
 const PRIMARY = "#5B4DDB";
@@ -98,6 +99,7 @@ const LeadDetailPage = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
   const [aboutOpen, setAboutOpen] = useState(true);
+  const [composeOpen, setComposeOpen] = useState(false);
 
   // Mock lead data
   const lead = {
@@ -208,8 +210,13 @@ const LeadDetailPage = () => {
               spacing={1}
               sx={{ cursor: "pointer" }}
               onClick={() => {
-                toast.info(`Clicked ${action.label}`);
-                // Handle action click
+                if (action.type === "email") {
+                  window.location.href = `mailto:ferraricrm30@gmail.com?subject=CRM Lead Follow-up: ${lead.name}`;
+                } else if (action.type === "call") {
+                  window.location.href = `tel:+919497180892`;
+                } else {
+                  toast.info(`Clicked ${action.label}`);
+                }
               }}
             >
               <Box sx={{
@@ -288,8 +295,23 @@ const LeadDetailPage = () => {
           />
           <Button
             variant="contained"
+            onClick={() => setComposeOpen(true)}
             sx={{
               backgroundColor: PRIMARY,
+              textTransform: 'none',
+              borderRadius: '8px',
+              px: 3,
+              mr: 1,
+              whiteSpace: 'nowrap'
+            }}
+          >
+            Create Email
+          </Button>
+          <Button
+            variant="outlined"
+            sx={{
+              borderColor: PRIMARY,
+              color: PRIMARY,
               textTransform: 'none',
               borderRadius: '8px',
               px: 3,
@@ -437,6 +459,12 @@ const LeadDetailPage = () => {
         <AttachmentsSection />
       </Box>
 
+      {/* Tracked Email Modal */}
+      <ComposeEmailDialog
+        open={composeOpen}
+        onClose={() => setComposeOpen(false)}
+        leadId={id}
+      />
     </Box>
   );
 };

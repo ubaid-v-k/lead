@@ -38,6 +38,7 @@ import LeadMeetings from "../leads/LeadMeetings";
 
 // Components
 import AttachmentsSection from "../../components/common/AttachmentsSection";
+import ComposeEmailDialog from "../../components/common/ComposeEmailDialog";
 
 const PRIMARY = "#5B4DDB";
 
@@ -70,6 +71,7 @@ export default function TicketDetails() {
 
     // UI state
     const [aboutOpen, setAboutOpen] = useState(true);
+    const [composeOpen, setComposeOpen] = useState(false);
     const [tabValue, setTabValue] = useState(0);
 
     const handleTabChange = (event, newValue) => {
@@ -147,7 +149,13 @@ export default function TicketDetails() {
                             spacing={1}
                             sx={{ cursor: "pointer", minWidth: 50 }}
                             onClick={() => {
-                                // Handle action
+                                if (action.type === "email") {
+                                    window.location.href = `mailto:ferraricrm30@gmail.com?subject=CRM Ticket Follow-up: ${ticket.title}`;
+                                } else if (action.type === "call") {
+                                    window.location.href = `tel:+919497180892`;
+                                } else {
+                                    toast.info(`Clicked ${action.label}`);
+                                }
                             }}
                         >
                             <Box sx={{
@@ -237,6 +245,20 @@ export default function TicketDetails() {
                         <Box component="span">🔍</Box>
                         <Typography variant="body2">Search activities</Typography>
                     </Box>
+                    <Button
+                        variant="contained"
+                        onClick={() => setComposeOpen(true)}
+                        sx={{
+                            backgroundColor: PRIMARY,
+                            textTransform: 'none',
+                            borderRadius: '8px',
+                            px: 3,
+                            ml: 2,
+                            whiteSpace: 'nowrap'
+                        }}
+                    >
+                        Create Email
+                    </Button>
                 </Box>
 
                 {/* Tabs */}
@@ -365,6 +387,13 @@ export default function TicketDetails() {
                 {/* Attachments */}
                 <AttachmentsSection />
             </Box>
+
+            {/* Tracked Email Modal */}
+            <ComposeEmailDialog
+                open={composeOpen}
+                onClose={() => setComposeOpen(false)}
+                leadId={id}
+            />
         </Box>
     );
 }

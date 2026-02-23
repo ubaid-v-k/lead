@@ -14,6 +14,8 @@ export default function Login() {
     password: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const validate = () => {
     const newErrors = {};
     if (!form.email) newErrors.email = "Please enter email before signing in";
@@ -21,7 +23,7 @@ export default function Login() {
     return newErrors;
   };
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     setGlobalError("");
     setErrors({});
@@ -32,18 +34,24 @@ export default function Login() {
       return;
     }
 
-    console.log("Attempting login with:", form.email); // Debug
+    setLoading(true);
+    try {
+      console.log("Attempting login with:", form.email); // Debug
+      const res = await loginUser(form);
+      console.log("Login result:", res); // Debug
 
-    const res = loginUser(form);
-
-    console.log("Login result:", res); // Debug
-
-    if (!res.success) {
-      setGlobalError(res.message || "Email or password incorrect");
-      toast.error(res.message || "Login failed");
-    } else {
-      // toast.success("Login successful!"); // Removed as per request
-      navigate("/dashboard", { replace: true });
+      if (!res.success) {
+        setGlobalError(res.message || "Email or password incorrect");
+        toast.error(res.message || "Login failed");
+      } else {
+        // toast.success("Login successful!"); // Removed as per request
+        navigate("/dashboard", { replace: true });
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setGlobalError("An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -87,8 +95,8 @@ export default function Login() {
             </Link>
           </div>
 
-          <button type="submit" className="btn auth-btn w-100">
-            Log in
+          <button type="submit" className="btn auth-btn w-100" disabled={loading}>
+            {loading ? "Logging in..." : "Log in"}
           </button>
         </form>
 

@@ -104,6 +104,16 @@ export default function Topbar({ onMenuClick }) {
                     <strong>Company:</strong> {user.company}
                   </p>
                 )}
+                {user?.industry && (
+                  <p>
+                    <strong>Industry:</strong> {user.industry}
+                  </p>
+                )}
+                {user?.country && (
+                  <p>
+                    <strong>Country:</strong> {user.country}
+                  </p>
+                )}
               </div>
 
               <div className="divider" style={{ margin: "8px 0", borderTop: "1px solid #eee" }}></div>

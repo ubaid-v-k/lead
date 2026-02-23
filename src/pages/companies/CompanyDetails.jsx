@@ -39,6 +39,7 @@ import LeadEmails from '../leads/LeadEmails';
 import LeadCalls from '../leads/LeadCalls';
 import LeadTasks from '../leads/LeadTasks';
 import LeadMeetings from '../leads/LeadMeetings';
+import ComposeEmailDialog from '../../components/common/ComposeEmailDialog';
 
 /* ================= THEME ================= */
 
@@ -101,6 +102,7 @@ const CompanyDetails = () => {
     const [activeTab, setActiveTab] = useState(0);
     const [aboutOpen, setAboutOpen] = useState(true);
     const [company, setCompany] = useState(null);
+    const [composeOpen, setComposeOpen] = useState(false);
 
     useEffect(() => {
         const data = getCompany(id);
@@ -194,7 +196,13 @@ const CompanyDetails = () => {
                             spacing={1}
                             sx={{ cursor: "pointer", minWidth: 50 }}
                             onClick={() => {
-                                toast.info(`Clicked ${action.label}`);
+                                if (action.type === "email") {
+                                    window.location.href = `mailto:ferraricrm30@gmail.com?subject=CRM Company Follow-up: ${company.name}`;
+                                } else if (action.type === "call") {
+                                    window.location.href = `tel:+919497180892`;
+                                } else {
+                                    toast.info(`Clicked ${action.label}`);
+                                }
                             }}
                         >
                             <Box sx={{
@@ -274,6 +282,20 @@ const CompanyDetails = () => {
                             startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" sx={{ color: "#94a3b8" }} /></InputAdornment>
                         }}
                     />
+                    <Button
+                        variant="contained"
+                        onClick={() => setComposeOpen(true)}
+                        sx={{
+                            backgroundColor: PRIMARY,
+                            textTransform: 'none',
+                            borderRadius: '8px',
+                            px: 3,
+                            mr: 1,
+                            whiteSpace: 'nowrap'
+                        }}
+                    >
+                        Create Email
+                    </Button>
                 </Box>
 
                 <Tabs
@@ -413,6 +435,12 @@ const CompanyDetails = () => {
                 <AttachmentsSection />
             </Box>
 
+            {/* Tracked Email Modal */}
+            <ComposeEmailDialog
+                open={composeOpen}
+                onClose={() => setComposeOpen(false)}
+                leadId={id}
+            />
         </Box>
     );
 };
