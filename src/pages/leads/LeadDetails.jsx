@@ -42,6 +42,7 @@ import LeadTasks from './LeadTasks';
 import LeadMeetings from './LeadMeetings';
 import AttachmentsSection from '../../components/common/AttachmentsSection';
 import ComposeEmailDialog from '../../components/common/ComposeEmailDialog';
+import CreateLead from './CreateLead';
 
 /* ================= THEME ================= */
 const PRIMARY = "#5B4DDB";
@@ -100,6 +101,7 @@ const LeadDetailPage = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [aboutOpen, setAboutOpen] = useState(true);
   const [composeOpen, setComposeOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
   // Mock lead data
   const lead = {
@@ -211,11 +213,15 @@ const LeadDetailPage = () => {
               sx={{ cursor: "pointer" }}
               onClick={() => {
                 if (action.type === "email") {
-                  window.location.href = `mailto:ferraricrm30@gmail.com?subject=CRM Lead Follow-up: ${lead.name}`;
+                  setActiveTab(2); // Emails tab
                 } else if (action.type === "call") {
-                  window.location.href = `tel:+919497180892`;
-                } else {
-                  toast.info(`Clicked ${action.label}`);
+                  setActiveTab(3); // Calls tab
+                } else if (action.type === "note") {
+                  setActiveTab(1); // Notes tab
+                } else if (action.type === "task") {
+                  setActiveTab(4); // Tasks tab
+                } else if (action.type === "meeting") {
+                  setActiveTab(5); // Meetings tab
                 }
               }}
             >
@@ -247,7 +253,7 @@ const LeadDetailPage = () => {
             {aboutOpen ? <ArrowDownIcon fontSize="small" color="action" /> : <ArrowRightIcon fontSize="small" color="action" />}
             <Typography variant="subtitle2" fontWeight={700} color="#1e293b">About this Lead</Typography>
           </Stack>
-          <IconButton size="small" sx={{ color: PRIMARY }}>
+          <IconButton size="small" sx={{ color: PRIMARY }} onClick={() => setEditOpen(true)}>
             <EditIcon fontSize="small" sx={{ fontSize: 16 }} />
           </IconButton>
         </Stack>
@@ -270,7 +276,15 @@ const LeadDetailPage = () => {
                   <Typography variant="body2" fontWeight={600} color="#1e293b">
                     {field.value}
                   </Typography>
-                  {field.label === 'Email' && <CopyIcon sx={{ fontSize: 12, color: '#94a3b8', cursor: 'pointer' }} />}
+                  {field.label === 'Email' && (
+                    <CopyIcon
+                      sx={{ fontSize: 12, color: '#94a3b8', cursor: 'pointer' }}
+                      onClick={() => {
+                        navigator.clipboard.writeText(field.value);
+                        toast.success("Email copied to clipboard");
+                      }}
+                    />
+                  )}
                 </Stack>
               </Box>
             ))}
@@ -464,6 +478,24 @@ const LeadDetailPage = () => {
         open={composeOpen}
         onClose={() => setComposeOpen(false)}
         leadId={id}
+      />
+      {/* Edit Lead Drawer */}
+      <CreateLead
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        editData={{
+          firstName: lead.firstName,
+          lastName: lead.lastName,
+          email: lead.email,
+          phone: lead.phone,
+          title: lead.jobTitle,
+          status: lead.status,
+          owner: "Jane Cooper"
+        }}
+        onSave={(updatedLead) => {
+          console.log("Updated lead:", updatedLead);
+          // In a real app, update state or refetch data here
+        }}
       />
     </Box>
   );

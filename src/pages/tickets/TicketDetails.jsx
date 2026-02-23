@@ -39,6 +39,7 @@ import LeadMeetings from "../leads/LeadMeetings";
 // Components
 import AttachmentsSection from "../../components/common/AttachmentsSection";
 import ComposeEmailDialog from "../../components/common/ComposeEmailDialog";
+import CreateTicket from "./CreateTicket";
 
 const PRIMARY = "#5B4DDB";
 
@@ -73,6 +74,7 @@ export default function TicketDetails() {
     const [aboutOpen, setAboutOpen] = useState(true);
     const [composeOpen, setComposeOpen] = useState(false);
     const [tabValue, setTabValue] = useState(0);
+    const [editOpen, setEditOpen] = useState(false);
 
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
@@ -150,11 +152,15 @@ export default function TicketDetails() {
                             sx={{ cursor: "pointer", minWidth: 50 }}
                             onClick={() => {
                                 if (action.type === "email") {
-                                    window.location.href = `mailto:ferraricrm30@gmail.com?subject=CRM Ticket Follow-up: ${ticket.title}`;
+                                    setTabValue(2); // Emails tab
                                 } else if (action.type === "call") {
-                                    window.location.href = `tel:+919497180892`;
-                                } else {
-                                    toast.info(`Clicked ${action.label}`);
+                                    setTabValue(3); // Calls tab
+                                } else if (action.type === "note") {
+                                    setTabValue(1); // Notes tab
+                                } else if (action.type === "task") {
+                                    setTabValue(4); // Tasks tab
+                                } else if (action.type === "meeting") {
+                                    setTabValue(5); // Meetings tab
                                 }
                             }}
                         >
@@ -198,7 +204,7 @@ export default function TicketDetails() {
                             About this Ticket
                         </Typography>
                     </Stack>
-                    <IconButton size="small">
+                    <IconButton size="small" onClick={() => setEditOpen(true)}>
                         <EditIcon fontSize="small" sx={{ fontSize: 16, color: PRIMARY }} />
                     </IconButton>
                 </Stack>
@@ -393,6 +399,24 @@ export default function TicketDetails() {
                 open={composeOpen}
                 onClose={() => setComposeOpen(false)}
                 leadId={id}
+            />
+            {/* Edit Ticket Drawer */}
+            <CreateTicket
+                open={editOpen}
+                onClose={() => setEditOpen(false)}
+                editData={{
+                    title: ticket.title,
+                    description: ticket.description,
+                    status: ticket.status,
+                    source: ticket.source || "Email",
+                    priority: ticket.priority,
+                    owner: ticket.owner,
+                    companyId: ticket.companyId,
+                    dealId: ticket.dealId,
+                }}
+                onSave={(updatedTicket) => {
+                    console.log("Updated ticket:", updatedTicket);
+                }}
             />
         </Box>
     );

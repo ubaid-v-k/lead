@@ -40,6 +40,7 @@ import LeadCalls from '../leads/LeadCalls';
 import LeadTasks from '../leads/LeadTasks';
 import LeadMeetings from '../leads/LeadMeetings';
 import ComposeEmailDialog from '../../components/common/ComposeEmailDialog';
+import CreateCompany from './CreateCompany';
 
 /* ================= THEME ================= */
 
@@ -103,6 +104,7 @@ const CompanyDetails = () => {
     const [aboutOpen, setAboutOpen] = useState(true);
     const [company, setCompany] = useState(null);
     const [composeOpen, setComposeOpen] = useState(false);
+    const [editOpen, setEditOpen] = useState(false);
 
     useEffect(() => {
         const data = getCompany(id);
@@ -175,7 +177,13 @@ const CompanyDetails = () => {
                                 <Typography variant="caption" color="#64748b">
                                     {company.domain || "website.com"}
                                 </Typography>
-                                <CopyIcon sx={{ fontSize: 12, color: '#94a3b8', cursor: 'pointer' }} />
+                                <CopyIcon
+                                    sx={{ fontSize: 12, color: '#94a3b8', cursor: 'pointer' }}
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(company.domain || "website.com");
+                                        toast.success("Domain copied to clipboard");
+                                    }}
+                                />
                             </Stack>
                         </Box>
                     </Box>
@@ -197,11 +205,15 @@ const CompanyDetails = () => {
                             sx={{ cursor: "pointer", minWidth: 50 }}
                             onClick={() => {
                                 if (action.type === "email") {
-                                    window.location.href = `mailto:ferraricrm30@gmail.com?subject=CRM Company Follow-up: ${company.name}`;
+                                    setActiveTab(2); // Emails tab
                                 } else if (action.type === "call") {
-                                    window.location.href = `tel:+919497180892`;
-                                } else {
-                                    toast.info(`Clicked ${action.label}`);
+                                    setActiveTab(3); // Calls tab
+                                } else if (action.type === "note") {
+                                    setActiveTab(1); // Notes tab
+                                } else if (action.type === "task") {
+                                    setActiveTab(4); // Tasks tab
+                                } else if (action.type === "meeting") {
+                                    setActiveTab(5); // Meetings tab
                                 }
                             }}
                         >
@@ -233,7 +245,7 @@ const CompanyDetails = () => {
                         {aboutOpen ? <ArrowDownIcon fontSize="small" color="action" /> : <ArrowRightIcon fontSize="small" color="action" />}
                         <Typography variant="subtitle2" fontWeight={700} color="#1e293b">About this Company</Typography>
                     </Stack>
-                    <IconButton size="small" sx={{ color: PRIMARY }}>
+                    <IconButton size="small" sx={{ color: PRIMARY }} onClick={() => setEditOpen(true)}>
                         <EditIcon fontSize="small" sx={{ fontSize: 16 }} />
                     </IconButton>
                 </Stack>
@@ -440,6 +452,26 @@ const CompanyDetails = () => {
                 open={composeOpen}
                 onClose={() => setComposeOpen(false)}
                 leadId={id}
+            />
+            {/* Edit Company Drawer */}
+            <CreateCompany
+                open={editOpen}
+                onClose={() => setEditOpen(false)}
+                editData={{
+                    domain: company.domain,
+                    name: company.name,
+                    owner: company.owner,
+                    industry: company.industry,
+                    type: company.type || "Private",
+                    city: company.city,
+                    country: company.country,
+                    employees: company.employees,
+                    revenue: company.revenue,
+                    phone: company.phone,
+                }}
+                onSave={(updatedCompany) => {
+                    console.log("Updated company:", updatedCompany);
+                }}
             />
         </Box>
     );
